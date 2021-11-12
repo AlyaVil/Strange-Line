@@ -1,0 +1,58 @@
+let _aryInitRot = [];
+let _numObject;
+let _aryObject = [];
+let _step;
+let _parts;
+
+function setup() {
+  let canvasSize;
+  if (windowWidth <= windowHeight) {
+    canvasSize = windowWidth;
+  } else {
+    canvasSize = windowHeight;
+  }
+  createCanvas(canvasSize, canvasSize, WEBGL);
+  document.getElementsByTagName('main')[0].style.margin = 0;
+  setAttributes('premultipliedAlpha', true);
+  frameRate(30);
+  noStroke();
+
+  for (let i = 0; i < 3; i++) {
+    _aryInitRot[i] = [random(2*PI), random([-1, 1])];
+  }
+
+  _numObject = 80;
+  _step = 2;
+  _parts = new Parts(_numObject, _step);
+}
+
+function draw() {
+  ortho(-width/2, width/2, -width/2, width/2, 0, width*2);
+  background(200);
+  ambientLight(60);
+
+  directionalLight(255, 255, 255, -1, 1, -1);
+  rotateX(_aryInitRot[0][0] + frameCount/200 * _aryInitRot[0][1]);
+  rotateY(_aryInitRot[1][0] + frameCount/100 * _aryInitRot[1][1]);
+  rotateZ(_aryInitRot[2][0]);
+
+  _parts.update();
+}
+
+function drawPart(startX, startY, startZ, endX, endY, endZ, w, col) {
+  let angAxisZ = atan2(endY - startY, endX - startX);
+  let distXY = dist(startX, startY, endX, endY);
+  let angAxisY = -atan2(endZ - startZ, distXY);
+  let distXYZ = dist(0, startZ, distXY, endZ);
+  push();
+  translate(startX, startY, startZ);
+  rotateZ(angAxisZ - PI/2);
+  rotateX(-angAxisY);
+  translate(0, distXYZ/2, 0);
+  specularMaterial(col);
+  shininess(150);
+  cylinder(w/2, distXYZ, 128);
+  translate(0, distXYZ/2, 0);
+  sphere(w/2, 128, 128);
+  pop();
+}
